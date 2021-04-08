@@ -1,11 +1,8 @@
 import nltk
 import unicodedata
-import numpy as np
 
 from loader import CorpusLoader
 from reader import PickledCorpusReader
-from nltk.corpus import wordnet as wn
-from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem.porter import *
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -25,8 +22,7 @@ class TextNormalizer(BaseEstimator, TransformerMixin):
 
     def __init__(self, language='english'):
         self.language = language
-        self.stopwords  = set(nltk.corpus.stopwords.words(language))
-        self.lemmatizer = WordNetLemmatizer()
+        self.stopwords = set(nltk.corpus.stopwords.words(language))
         self.stemmer = PorterStemmer()
 
     def is_punct(self, token):
@@ -46,7 +42,7 @@ class TextNormalizer(BaseEstimator, TransformerMixin):
             if not self.is_punct(token) and not self.is_stopword(token)
         ]
 
-    def stem(self,token):
+    def stem(self, token):
         return self.stemmer.stem(token)
 
     def fit(self, X, y=None):
@@ -58,7 +54,6 @@ class TextNormalizer(BaseEstimator, TransformerMixin):
 
 
 def create_pipeline(estimator, reduction=False):
-
     steps = [
         ('normalize', TextNormalizer()),
         ('vectorize', TfidfVectorizer(
@@ -81,7 +76,5 @@ reader = PickledCorpusReader('../corpus')
 loader = CorpusLoader(reader, 5, shuffle=True, categories=labels)
 
 models = []
-for form in (SVC, DecisionTreeClassifier,RandomForestClassifier):
+for form in (SVC, DecisionTreeClassifier, RandomForestClassifier):
     models.append(create_pipeline(form(), False))
-
-
